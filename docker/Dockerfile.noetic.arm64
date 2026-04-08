@@ -1,0 +1,43 @@
+# Noetic Dockerfile for ARM64 (Jetson Orin NX)
+# Build: docker build -f docker/Dockerfile.noetic.arm64 -t li_init:noetic-arm64 docker/
+
+FROM arm64v8/ros:noetic-ros-base
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install PCL & Eigen & essential libraries
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        cmake build-essential git wget ca-certificates \
+        libeigen3-dev libpcl-dev \
+        ros-noetic-rviz ros-noetic-pcl-ros ros-noetic-eigen-conversions \
+        libatlas-base-dev libgoogle-glog-dev libgflags-dev \
+        libsuitesparse-dev libglew-dev \
+        python3-pip python3-tk python3-catkin-tools \
+    && pip3 install --no-cache-dir matplotlib \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install ceres-solver 2.0.0
+WORKDIR /home
+RUN wget -q https://github.com/ceres-solver/ceres-solver/archive/refs/tags/2.0.0.tar.gz \
+    && tar zxf 2.0.0.tar.gz && rm 2.0.0.tar.gz \
+    && mkdir -p ceres-bin && cd ceres-bin \
+    && cmake -DCMAKE_BUILD_TYPE=Release ../ceres-solver-2.0.0 \
+    && make -j"$(nproc)" && make install \
+    && cd /home && rm -rf ceres-bin ceres-solver-2.0.0
+
+# Install livox_ros_driver
+WORKDIR /home/catkin_ws/src
+RUN wget -q https://github.com/Livox-SDK/livox_ros_driver/archive/refs/tags/v2.6.0.tar.gz \
+    && tar zxf v2.6.0.tar.gz && rm v2.6.0.tar.gz
+
+# Build catkin workspace
+RUN /bin/bash -c '. /opt/ros/noetic/setup.bash; \
+    cd /home/catkin_ws && catkin_make -j"$(nproc)"'
+
+# Entrypoint
+COPY ./ros_entrypoint.sh /ros_entrypoint.sh
+RUN sed -i 's|/opt/ros/melodic/setup.bash|/opt/ros/noetic/setup.bash|g' /ros_entrypoint.sh \
+    && chmod 755 /ros_entrypoint.sh
+
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD ["bash"]

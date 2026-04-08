@@ -1,6 +1,6 @@
 common:
     lid_topic:  "/livox/lidar"
-    imu_topic:  "/mavros/imu/data_raw"
+    imu_topic:  "/mavros/imu/data"
 
 preprocess:
     lidar_type: 1                # Livox series LiDAR
