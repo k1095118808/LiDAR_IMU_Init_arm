@@ -1,3 +1,14 @@
+> ### Fork notes
+>
+> This is a fork of [hku-mars/LiDAR_IMU_Init](https://github.com/hku-mars/LiDAR_IMU_Init) with small modifications:
+>
+> - Added `docker/Dockerfile.noetic.arm64` and `docker/README.noetic.arm64.md` to build and run the package on ARM64 (e.g. Jetson) with ROS Noetic.
+> - Tweaked `config/mid360.yaml` for a Livox Mid360 + Pixhawk IMU setup.
+>
+> All credit for the original method and code goes to the upstream authors.
+>
+> ---
+>
 ## Robust Real-time LiDAR-inertial Initialization
 
 **LI-Init** is a robust, real-time initialization method for LiDAR-inertial system. The proposed method calibrates the temporal offset and extrinsic parameter between LiDARs and IMUs, and also the gravity vector and IMU bias. Our method does not require any target or extra sensor, specific structured environment, prior environment point map or initial values of extrinsic and time offset. Our package address following key issues:
